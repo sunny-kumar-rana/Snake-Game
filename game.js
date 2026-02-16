@@ -2,20 +2,31 @@ window.addEventListener("keydown",(evnt)=>{
     direction = evnt.key;
 });
 
+const timeElapsed = document.querySelector("#time-elapsed");
+const score = document.querySelector("#score");
+const bestScore = document.querySelector("#bestscore");
 const arena = document.querySelector(".arena");
-let box = 80;
+
+let box = 30;
 const row = (arena.clientHeight/box)-1;
 const column = (arena.clientWidth/box)-1;
+let currentScore = 0;
+let highestScore = 0;
+let time = 0;
 const blocks = [];
 let snake = [{y:4,x:10}];
 let food = [{y:Math.floor(Math.random()*column),x:Math.floor(Math.random()*row)}];
-let head = null;
 let direction = "ArrowLeft";
+let head = null;
+let start = null;
+let timer = setInterval(() => {
+    timeElapsed.textContent = `${++time} seconds`;
+}, 1000);
 
 for(let i = 0; i < row; i++){
     for(let j = 0; j < column;j++){
         const block = document.createElement("div");
-        block.textContent = `${i},${j}`;
+        // block.textContent = `${i},${j}`;
         arena.appendChild(block).setAttribute("class","block");
         blocks[`${i}-${j}`] = block;
     }
@@ -26,12 +37,18 @@ function play(){
         blocks[`${body.y}-${body.x}`].classList.add("snake");
     });
     
-    food.forEach((body)=>{
-        blocks[`${body.y}-${body.x}`].classList.add("food");
-    })
+    blocks[`${food[0].y}-${food[0].x}`].classList.add("food");
 }
 function foodRespawn(){
-    food = [{y:Math.floor(Math.random()*column),x:Math.floor(Math.random()*row)}];
+    blocks[`${food[0].y}-${food[0].x}`].classList.remove("food");
+
+    score.textContent = ++currentScore;
+    if(currentScore>highestScore){
+        highestScore = currentScore;
+    }
+    bestScore.textContent = highestScore;
+
+    food = [{y:Math.floor(Math.random()*row),x:Math.floor(Math.random()*column)}];
 }
 function remove(){
     snake.forEach((body)=>{
@@ -52,12 +69,24 @@ const getDirection = function(){
         head = {y:snake[0].y+1,x:snake[0].x};
     }
 }
+function gameOver(){
+    if(head.x<0||head.x>=column||head.y<0||head.y>=row){
+        alert("Game Over");
+        clearInterval(start);
+        clearInterval(timer);
+        return;
+    }
+}
 
-setInterval(()=>{
+start = setInterval(()=>{
     remove();
-    console.log(head.y,food.y);
     getDirection();
+    gameOver();
     snake.unshift(head);
-    snake.pop();
+    if(snake[0].y === food[0].y && snake[0].x === food[0].x){
+        foodRespawn();
+    }else{
+        snake.pop();
+    }
     play();
-},500);
+},300);

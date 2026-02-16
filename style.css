@@ -1,9 +1,11 @@
 :root {
-  --background-color: #1b0b02;
-  --arena-color: #4a1f08;
-  --snake-color: #8a8a8a;
+  --background-color: #111111;
+  --arena-color: #211111;
+  --snake-color: #388a09;
   --food-color: #0093f5;
   --text-color: #ffede3;
+
+  --blocks-size: 30px;
 }
 * {
   margin: 0;
@@ -47,8 +49,8 @@ main {
 }
 .arena {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  grid-template-rows: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--blocks-size), 1fr));
+  grid-template-rows: repeat(auto-fill, minmax(var(--blocks-size), 1fr));
   outline: 1px solid salmon;
   border-radius: 10px;
   height: 100%;
@@ -56,16 +58,16 @@ main {
   background-color: var(--arena-color);
 }
 .block {
-  width: 80px;
-  height: 80px;
+  width: var(--blocks-size);
+  height: var(--blocks-size);
   border-radius: 10px;
-  border: 1px solid rgb(84, 78, 78);
+  /* border: 1px solid rgb(84, 78, 78); */
   font-family: "Courier New", Courier, monospace;
   font-size: x-small;
 }
-.snake {
-  background-color: var(--snake-color);
-}
 .food {
   background-color: var(--food-color);
+}
+.snake {
+  background-color: var(--snake-color);
 }
