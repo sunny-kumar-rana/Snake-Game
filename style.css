@@ -71,3 +71,21 @@ main {
 .snake {
   background-color: var(--snake-color);
 }
+.overlay {
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 50px;
+  font-size: xx-large;
+  background-color: rgba(158, 158, 158, 0);
+  backdrop-filter: blur(10px);
+}
+.start {
+  padding: 1rem 2rem;
+}

@@ -6,6 +6,9 @@ const timeElapsed = document.querySelector("#time-elapsed");
 const score = document.querySelector("#score");
 const bestScore = document.querySelector("#bestscore");
 const arena = document.querySelector(".arena");
+const overlay = document.querySelector(".overlay");
+const button = document.querySelector(".start");
+
 
 let box = 30;
 const row = (arena.clientHeight/box)-1;
@@ -19,14 +22,42 @@ let food = [{y:Math.floor(Math.random()*column),x:Math.floor(Math.random()*row)}
 let direction = "ArrowLeft";
 let head = null;
 let start = null;
-let timer = setInterval(() => {
-    timeElapsed.textContent = `${++time} seconds`;
-}, 1000);
+let timer = null;
+
+
+button.addEventListener("click",() => {
+    overlay.style.display = "none";
+
+    snake = [{y:4,x:10}];
+    direction = "ArrowLeft";
+    currentScore = 0;
+    time = 0;
+    let iter = 0;
+    start = setInterval(()=>{
+        if(iter !== 0){
+            remove();
+        }
+        getDirection();
+        collision();
+        snake.unshift(head);
+        if(snake[0].y === food[0].y && snake[0].x === food[0].x){
+            foodRespawn();
+        }else{
+            snake.pop();
+        }
+        play();
+        iter++;
+    },300);
+
+    timer = setInterval(() => {
+        timeElapsed.textContent = `${++time} seconds`;
+    }, 1000);
+});
+
 
 for(let i = 0; i < row; i++){
     for(let j = 0; j < column;j++){
         const block = document.createElement("div");
-        // block.textContent = `${i},${j}`;
         arena.appendChild(block).setAttribute("class","block");
         blocks[`${i}-${j}`] = block;
     }
@@ -69,24 +100,17 @@ const getDirection = function(){
         head = {y:snake[0].y+1,x:snake[0].x};
     }
 }
-function gameOver(){
-    if(head.x<0||head.x>=column||head.y<0||head.y>=row){
-        alert("Game Over");
-        clearInterval(start);
-        clearInterval(timer);
-        return;
-    }
-}
+function collision(){
+    const hitSelf = snake.some(part => part.x === head.x && part.y === head.y);
 
-start = setInterval(()=>{
-    remove();
-    getDirection();
+if (head.x < 0 || head.x >= column || head.y < 0 || head.y >= row || hitSelf) {
     gameOver();
-    snake.unshift(head);
-    if(snake[0].y === food[0].y && snake[0].x === food[0].x){
-        foodRespawn();
-    }else{
-        snake.pop();
-    }
-    play();
-},300);
+    return;
+}
+}
+function gameOver(){
+    clearInterval(start);
+    clearInterval(timer);
+    overlay.firstChild.textContent = "Game Over";
+    overlay.style.display = "";
+}
