@@ -1,5 +1,17 @@
 window.addEventListener("keydown",(evnt)=>{
-    direction = evnt.key;
+    let key = evnt.key;
+    if (key === "ArrowLeft" && direction !== "ArrowRight"){
+        direction = key;
+    } 
+    if (key === "ArrowRight" && direction !== "ArrowLeft"){
+        direction = key;
+    } 
+    if (key === "ArrowUp" && direction !== "ArrowDown"){
+        direction = key;
+    } 
+    if (key === "ArrowDown" && direction !== "ArrowUp"){
+        direction = key;
+    } 
 });
 
 const timeElapsed = document.querySelector("#time-elapsed");
@@ -11,14 +23,14 @@ const button = document.querySelector(".start");
 
 
 let box = 30;
-const row = (arena.clientHeight/box)-1;
-const column = (arena.clientWidth/box)-1;
+const row = Math.floor(arena.clientHeight/box);
+const column = Math.floor(arena.clientWidth/box);
 let currentScore = 0;
 let highestScore = 0;
 let time = 0;
 const blocks = [];
 let snake = [{y:4,x:10}];
-let food = [{y:Math.floor(Math.random()*column),x:Math.floor(Math.random()*row)}];
+let food = [{y:Math.floor(Math.random()*row),x:Math.floor(Math.random()*column)}];
 let direction = "ArrowLeft";
 let head = null;
 let start = null;
@@ -32,13 +44,16 @@ button.addEventListener("click",() => {
     direction = "ArrowLeft";
     currentScore = 0;
     time = 0;
-    let iter = 0;
+
+
     start = setInterval(()=>{
-        if(iter !== 0){
-            remove();
-        }
+        remove();
         getDirection();
-        collision();
+
+        if(collision()){
+            return;
+        }    
+
         snake.unshift(head);
         if(snake[0].y === food[0].y && snake[0].x === food[0].x){
             foodRespawn();
@@ -46,7 +61,6 @@ button.addEventListener("click",() => {
             snake.pop();
         }
         play();
-        iter++;
     },300);
 
     timer = setInterval(() => {
@@ -74,12 +88,20 @@ function foodRespawn(){
     blocks[`${food[0].y}-${food[0].x}`].classList.remove("food");
 
     score.textContent = ++currentScore;
-    if(currentScore>highestScore){
+    if(currentScore > highestScore){
         highestScore = currentScore;
     }
     bestScore.textContent = highestScore;
 
-    food = [{y:Math.floor(Math.random()*row),x:Math.floor(Math.random()*column)}];
+    let newFood;
+    do {
+        newFood = {
+            y: Math.floor(Math.random() * row),
+            x: Math.floor(Math.random() * column)
+        };
+    } while (snake.some(part => part.x === newFood.x && part.y === newFood.y));
+
+    food = [newFood];
 }
 function remove(){
     snake.forEach((body)=>{
@@ -101,12 +123,15 @@ const getDirection = function(){
     }
 }
 function collision(){
-    const hitSelf = snake.some(part => part.x === head.x && part.y === head.y);
+    const hitSelf = snake.slice(1).some(part => part.x === head.x && part.y === head.y);
 
-if (head.x < 0 || head.x >= column || head.y < 0 || head.y >= row || hitSelf) {
-    gameOver();
-    return;
-}
+    if (head.x < 0 || head.x >= column || head.y < 0 || head.y >= row || hitSelf) {
+        gameOver();
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 function gameOver(){
     clearInterval(start);
